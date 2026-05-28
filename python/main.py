@@ -1,3 +1,10 @@
+"""
+Raul Azzi Corsi
+RM569022
+Global Solution 2026 - Semestre 1
+"""
+
+
 #Imports:
 from pyfiglet import figlet_format
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine
@@ -30,7 +37,7 @@ def main():
      #Variables:
      usr_lat = None
      usr_lon = None
-     country = None
+     usr_country = None
 
      #APIs:
      token = get_token(os.getenv("ACLED_EMAIL"), os.getenv("ACLED_PASSWORD")) 
@@ -70,12 +77,16 @@ def main():
                          if usr_lat is None or usr_lon is None: 
                               usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))
                               usr_lon = float(input("Insert your longitude: E.g. 74.0060 | "))
-                              country = get_country(usr_lat, usr_lon)
+                              usr_country = get_country(usr_lat, usr_lon)
+                         
+                         events = get_conflicts_events(token, usr_country, limit=5)
+
+
                     except ValueError:
                          println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
                          pause()
 
-                    get_conflicts_events(token, country, limit=5)
+                    
 
 
                case "3":
