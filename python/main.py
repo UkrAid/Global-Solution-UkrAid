@@ -9,6 +9,7 @@ Global Solution 2026 - Semestre 1
 from pyfiglet import figlet_format
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine
 from api import get_token, get_conflicts_events, get_country
+from support_functions import println, pause, separador, separador_up, separador_down
 from dotenv import load_dotenv
 import os
 
@@ -16,19 +17,6 @@ import os
 load_dotenv()
 EMAIL = os.getenv("ACLED_EMAIL")
 PASSWORD = os.getenv("ACLED_PASSWORD")
-
-
-
-#Func de apoio:
-def println(str_):
-    print(str_, "\n")
-
-def separador():
-    print("═" * 53 + "\n")
-
-def pause():
-    input("Press enter to return...\n")
-
 
 
 
@@ -43,10 +31,11 @@ def main():
      token = get_token(os.getenv("ACLED_EMAIL"), os.getenv("ACLED_PASSWORD")) 
 
 
-     separador()
+     separador_up()
      print(figlet_format("OrbitGuard"))
+     separador_down()
+
      while True:
-          separador()
           print("""
           [1] About this system
           [2] Distance Based Risk
@@ -54,7 +43,9 @@ def main():
           [4] Safe route calculator
           [5] Refugee resource locator
           [0] Exit
-          """ + "\n")
+          """)
+
+          separador()
 
           usr_choice = input("Insert choice: ")
           match usr_choice:
@@ -74,9 +65,9 @@ def main():
 
                case "2":
                     try:
-                         if usr_lat is None or usr_lon is None: 
-                              usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))
-                              usr_lon = float(input("Insert your longitude: E.g. 74.0060 | "))
+                         if usr_lat is None or usr_lon is None:                                #Ukraine
+                              usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))  #50.4501
+                              usr_lon = float(input("Insert your longitude: E.g. 74.0060 | ")) #30.5234
                               usr_country = get_country(usr_lat, usr_lon)
                          
                          events = get_conflicts_events(token, usr_country, limit=3)
@@ -91,19 +82,16 @@ def main():
                                    i["latitude"], 
                                    i["longitude"], 
                                    i["location"],
-                                   i["fatalities"]
+                                   i["fatalities"],
                               )
-
-                              println(risk)
-
-                    except Exception as e:
-                         println(f"Error: {e}")
-                         pause()
+                              println(f" Risk vector is: {risk}.") 
+                              separador()
 
 
-                    """except ValueError:
+
+                    except ValueError:
                          println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
-                         pause()"""
+                         pause()
 
                     
 
