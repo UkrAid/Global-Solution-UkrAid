@@ -49,7 +49,7 @@ def main():
           separador()
           print("""
           [1] About this system
-          [2] Troop Movement tracker
+          [2] Distance Based Risk
           [3] Air raid alert monitor
           [4] Safe route calculator
           [5] Refugee resource locator
@@ -79,12 +79,31 @@ def main():
                               usr_lon = float(input("Insert your longitude: E.g. 74.0060 | "))
                               usr_country = get_country(usr_lat, usr_lon)
                          
-                         events = get_conflicts_events(token, usr_country, limit=5)
+                         events = get_conflicts_events(token, usr_country, limit=3)
+                         for i in events:
+                              d = haversine(usr_lat, usr_lon, float(i["latitude"]), float(i["longitude"]))
+                              risk = troop_risk(d)
 
+                              print(
+                                   "\n",
+                                   i["event_date"], 
+                                   i["event_type"], 
+                                   i["latitude"], 
+                                   i["longitude"], 
+                                   i["location"],
+                                   i["fatalities"]
+                              )
 
-                    except ValueError:
-                         println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
+                              println(risk)
+
+                    except Exception as e:
+                         println(f"Error: {e}")
                          pause()
+
+
+                    """except ValueError:
+                         println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
+                         pause()"""
 
                     
 

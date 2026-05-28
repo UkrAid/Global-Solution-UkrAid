@@ -4,8 +4,13 @@ import json
 
 
 def get_country(lat, lon):
-    data = requests.get(f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json")
+    headers = {"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
+    data = requests.get(
+        f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=json&accept-language=en",
+        headers=headers
+    )
     return data.json()["address"]["country"]
+    
 
 def get_token(username, password):
     response = requests.post(
@@ -28,7 +33,9 @@ def get_conflicts_events(token, country, limit=5):
         params={
             "country": country,
             "limit": limit,
-            "fields": "event_date|event_type|latitude|longitude|location|fatalities"
+            "fields": "event_date|event_type|latitude|longitude|location|fatalities",
+            "event_date": "2025-01-01|2026-05-28",
+            "event_date_where": "BETWEEN"
         },
         headers={"Authorization": f"Bearer {token}"}
     ) 
