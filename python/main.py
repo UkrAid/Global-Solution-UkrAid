@@ -38,7 +38,7 @@ def main():
      while True:
           print("""
           [1] About this system
-          [2] Distance Based Risk
+          [2] Distance-Based Risk
           [3] Air raid alert monitor
           [4] Safe route calculator
           [5] Refugee resource locator
@@ -66,28 +66,34 @@ def main():
                case "2":
                     try:
                          if usr_lat is None or usr_lon is None:                                #Ukraine
-                              usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))  #50.4501
-                              usr_lon = float(input("Insert your longitude: E.g. 74.0060 | ")) #30.5234
+                              usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))  #50.4501
+                              usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | ")) #30.5234
                               usr_country = get_country(usr_lat, usr_lon)
+                              separador_down()
                          
                          events = get_conflicts_events(token, usr_country, limit=3)
+                         count = 0
                          for i in events:
                               d = haversine(usr_lat, usr_lon, float(i["latitude"]), float(i["longitude"]))
                               risk = troop_risk(d)
+                              
+                              if count == 0:
+                                   separador_up()
 
-                              print(
-                                   "\n",
-                                   i["event_date"], 
-                                   i["event_type"], 
-                                   i["latitude"], 
-                                   i["longitude"], 
-                                   i["location"],
-                                   i["fatalities"],
-                              )
-                              println(f" Risk vector is: {risk}.") 
-                              separador()
+                              print(f"""
+   {i["location"]}
+   Type:                    {i["event_type"]}
+   Date:                    {i["event_date"]}
+   Distance:                {d}km
+   Fatalities:              {i["fatalities"]}
+   Distance-based risk:     {risk:.6f}
 
-
+"""
+)                             #Separa sempre no ultimo evento.
+                              if count == len(events) - 1: 
+                                   separador_down()
+                              
+                              count += 1
 
                     except ValueError:
                          println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
