@@ -10,7 +10,7 @@ from pyfiglet import figlet_format
 from dotenv import load_dotenv
 import os
 
-from api import get_token, get_conflicts_events, get_country, get_nearby_resources
+from api import get_token, get_conflicts_events, get_country, get_nearby_resources, get_facility_name
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine, risk_label
 from support_functions import println, pause, separador, separador_up, separador_down, clear
 
@@ -82,6 +82,7 @@ def main():
                          events = events[:3]
 
                          count = 0
+                         clear()
                          for i in events:
                               event_type = i["event_type"]
                               d = haversine(usr_lat, usr_lon, float(i["latitude"]), float(i["longitude"]))
@@ -94,12 +95,12 @@ def main():
                                    separador_up()
 
                               print(f"""
-  {i["location"]}
-  Type:                    {i["event_type"]}
-  Date:                    {i["event_date"]}
-  Distance:                {d:.1f}km
-  Fatalities:              {i["fatalities"]}
-  Distance-based risk:     {risk_label(risk)}
+ {i["location"]}
+ Type:                    {i["event_type"]}
+ Date:                    {i["event_date"]}
+ Distance:                {d:.1f}km
+ Fatalities:              {i["fatalities"]}
+ Distance-based risk:     {risk_label(risk)}
 
 """
 )                             #Separa sempre no ultimo evento.
@@ -149,67 +150,57 @@ def main():
 
                case "5":
                     try:
-                         if usr_lat is None or usr_lon is None: 
-                              usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))
-                              usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | "))
+                         if usr_lat is None or usr_lon is None:
+                              usr_lat = float(input("   Insert your latitude: E.g. 50.4501 | "))
+                              usr_lon = float(input("   Insert your longitude: E.g. 30.5234 | "))
+                         
                          while True:
                               clear()
                               separador_up()
-                              print("""     Refugee Resource Locator:
-          [1] Hospitals
-          [2] Shelters
-          [3] Transport
-          [0] Exit
-""")
-                              
-                              separador_down()      
+                              print("""   Refugee Resource Locator:
+   [1] Hospitals
+   [2] Shelters
+   [3] Transport
+   [0] Exit
+                    """)
+                              separador_down()
                               usr_choice_case5 = input("   Insert choice: ")
+                              amenity_type = None
 
                               match usr_choice_case5:
-                                   case "1":
-                                        amenity_type = "hospital"
-                                   case "2":
-                                        amenity_type = "shelter"
-                                   case "3":
-                                        amenity_type = "transportation"
-                                   case "0":
-                                        break
-                                   case _:
-                                        amenity_type = None
-                                        println("   Please try again")
+                                   case "1": amenity_type = "hospital"
+                                   case "2": amenity_type = "shelter"
+                                   case "3": amenity_type = "bus_station"
+                                   case "0": break
+                                   case _: println("   Please try again")
 
-                                   # 1. fetch
                               if amenity_type:
                                    amenities = get_nearby_resources(usr_lat, usr_lon, amenity_type)
-                                   # 2. sort
+                                   if amenity_type == "shelter":
+                                        amenities = [e for e in amenities if e["tags"].get("shelter_type") != "picnic_shelter"]
                                    amenities = sorted(amenities, key=lambda e: haversine(usr_lat, usr_lon, float(e["lat"]), float(e["lon"])))
                                    amenities = amenities[:3]
+                                   clear()
                                    for count, e in enumerate(amenities):
                                         d = haversine(usr_lat, usr_lon, float(e["lat"]), float(e["lon"]))
-
                                         address = e["tags"].get("addr:street", "")
                                         housenumber = e["tags"].get("addr:housenumber", "")
                                         location = f"{address} {housenumber}".strip() or f"({e['lat']}, {e['lon']})"
-
                                         if count == 0:
                                              separador_up()
-
                                         print(f"""
-   {e["tags"].get("name", "Unknown facility")}
-   Address:   {location}
-   Distance:   {d:.1f}km
-   Phone:      {e["tags"].get("phone", "N/A")}
+  {get_facility_name(e["tags"], amenity_type)}
+  Address:   {location}
+  Distance:   {d:.1f}km
+  Phone:      {e["tags"].get("phone", "N/A")}
 """
 )
                                         if count == len(amenities) - 1:
                                              separador_down()
-
                                    pause()
-                                   
 
-                                                                 
-                    except ValueError:
-                         println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
+                    except Exception as err:
+                         println(f"   Error: {err}")
                          pause()
 
           
@@ -217,6 +208,7 @@ def main():
                     break
                case _:
                     println("Wrong input type.")
+                    pause()
                 
 
 if __name__=="__main__":

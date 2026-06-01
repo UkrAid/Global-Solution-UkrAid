@@ -41,17 +41,19 @@ def get_conflicts_events(token, country, limit=20, date_from="2025-01-01", date_
     ) 
     return response.json()["data"]
 
-def get_nearby_resources(lat, lon, amenity_type, radius=10000):
-    if amenity_type == "Shelter":
-        extra = f'node["social_facility"="shelter"](around:{radius},{lat},{lon});'
+def get_facility_name(tags, amenity_type):
+    if amenity_type == "shelter":
+        return tags.get("shelter_type", "Emergency Shelter")
+    elif amenity_type == "bus_station":
+        return tags.get("name:en") or tags.get("name", "Bus Station")
     else:
-        extra = ""
+        return tags.get("name:en") or tags.get("name", "Unknown facility")
     
+def get_nearby_resources(lat, lon, amenity_type, radius=100000):
     query = f"""
 [out:json];
 (
 node["amenity"="{amenity_type}"](around:{radius},{lat},{lon});
-{extra}
 );
 out;
 """
