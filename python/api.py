@@ -40,3 +40,17 @@ def get_conflicts_events(token, country, limit=20, date_from="2025-01-01", date_
         headers={"Authorization": f"Bearer {token}"}
     ) 
     return response.json()["data"]
+
+def get_nearby_resources(lat, lon, amenity_type, radius=10000):
+    query = f"""
+[out:json];
+(
+node["amenity"="{amenity_type}"](around:{radius},{lat},{lon});
+);
+out;
+"""
+    return requests.get(
+    "https://overpass-api.de/api/interpreter",
+    params={"data": query},
+    headers={"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
+).json()["elements"]

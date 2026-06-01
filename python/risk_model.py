@@ -33,10 +33,10 @@ def total_risk(r_missile, r_air, r_troops):
 
 def risk_label(risk):
     if risk > 0.001:
-        return f"[ALERT!] Critical risk of: {risk:.2e}"
+        return f"[ALERT!] Critical risk of: {risk:.8f}"
     if risk > 0.0001:
-        return f"[ALERT!] High risk of :{risk:.2e}"
+        return f"[ALERT!] High risk of :{risk:.8f}"
     if risk > 0.00001:
-        return f"Moderate risk of :{risk:.2e}"
+        return f"Moderate risk of :{risk:.8f}"
     else:
         return "Low Distance-Based Risk"

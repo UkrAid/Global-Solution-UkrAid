@@ -7,10 +7,10 @@ Global Solution 2026 - Semestre 1
 
 #Imports:
 from pyfiglet import figlet_format
-from api import get_token, get_conflicts_events, get_country
 from dotenv import load_dotenv
 import os
 
+from api import get_token, get_conflicts_events, get_country, get_nearby_resources
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine, risk_label
 from support_functions import println, pause, separador, separador_up, separador_down
 
@@ -70,7 +70,8 @@ def main():
                               usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))  #50.4501
                               usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | ")) #30.5234
                               usr_country = get_country(usr_lat, usr_lon)
-                              separador_down()
+
+                              print("\n" + separador_down())
                          
                          events = get_conflicts_events(token, usr_country, limit=20)
                          events = sorted(events, key=lambda e: haversine(usr_lat, usr_lon, float(e["latitude"]), float(e["longitude"])))
@@ -104,7 +105,7 @@ def main():
                               count += 1
 
                     except ValueError:
-                         println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
+                         println("   Invalid input - please enter a valid coordinate. E.g. -23.5505")
                          pause()
 
                     
@@ -117,7 +118,7 @@ def main():
                          print("case 3")
 
                     except:
-                         println("Could not reach alert service. Check your connection.")
+                         println("   Could not reach alert service. Check your connection.")
                          pause()
 
 
@@ -128,11 +129,11 @@ def main():
 
                     try:
                          if usr_lat is None or usr_lon is None: 
-                              usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))
-                              usr_lon = float(input("Insert your longitude: E.g. 74.0060 | "))
+                              usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))
+                              usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | "))
                          
-                         dst_lat = float(input("Insert destination latitue: E.g.  50.4501 | "))
-                         dst_lon = float(input("Insert destination's longitude: E.g.  30.5234 | "))
+                         dst_lat = float(input("   Insert destination latitue: E.g.  50.4501 | "))
+                         dst_lon = float(input("   Insert destination's longitude: E.g.  30.5234 | "))
                          
                     
                     except ValueError:
@@ -143,11 +144,61 @@ def main():
                case "5":
                     try:
                          if usr_lat is None or usr_lon is None: 
-                              usr_lat = float(input("Insert your latitue: E.g. -23.5505 | "))
-                              usr_lon = float(input("Insert your longitude: E.g. 74.0060 | "))
-                         else:
-                              print("case 5")
-                              break
+                              usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))
+                              usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | "))
+                         while True:
+                              print("""
+   Refugee Resource Locator:
+          [1] All nearby
+          [2] Hospitals
+          [3] Shelters
+          [4] Transport
+          [0] Exit
+""")
+                              
+                              
+                              usr_choice_case5 = input("   Insert choice: ")
+
+                              match usr_choice_case5:
+                                   case "1":
+                                        amenity_type = "hospital"
+                                   case "2":
+                                        amenity_type = "hospital"
+                                   case "3":
+                                        amenity_type = "shelter"
+                                   case "4":
+                                        amenity_type = "transportation"
+                                   case "0":
+                                        break
+                                   case _:
+                                        amenity_type = None
+                                        println("   Please try again")
+
+                                   # 1. fetch
+                              if amenity_type:
+                                   amenities = get_nearby_resources(usr_lat, usr_lon, amenity_type)
+                                   # 2. sort
+                                   amenities = sorted(amenities, key=lambda e: haversine(usr_lat, usr_lon, float(e["lat"]), float(e["lon"])))
+                                   amenities = amenities[:3]
+                                   for count, e in enumerate(amenities):
+                                        d = haversine(usr_lat, usr_lon, float(e["lat"]), float(e["lon"]))
+
+                                        if count == 0:
+                                             separador_up()
+
+                                        print(f"""
+   {e["tags"].get("name", "Unknown facility")}
+   Location:   {e["tags"].get("addr:street", "N/A")} {e["tags"].get("addr:housenumber", "")}
+   Distance:   {d:.1f}km
+   Phone:      {e["tags"].get("phone", "N/A")}
+"""
+)
+                                        if count == len(amenities) - 1:''
+                                        separador_down()
+
+                                   pause()
+
+                                                                 
                     except ValueError:
                          println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
                          pause()
