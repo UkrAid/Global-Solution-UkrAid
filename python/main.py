@@ -12,7 +12,7 @@ import os
 
 from api import get_token, get_conflicts_events, get_country, get_nearby_resources
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine, risk_label
-from support_functions import println, pause, separador, separador_up, separador_down
+from support_functions import println, pause, separador, separador_up, separador_down, clear
 
 #ACLED API Requests:
 load_dotenv()
@@ -31,12 +31,13 @@ def main():
      #APIs:
      token = get_token(os.getenv("ACLED_EMAIL"), os.getenv("ACLED_PASSWORD")) 
 
-
-     separador_up()
-     print(figlet_format("OrbitGuard"))
-     separador_down()
+     
 
      while True:
+          clear()
+          separador_up()
+          print(figlet_format("OrbitGuard"))
+          separador_down()
           print("""
           [1] About this system
           [2] Distance-Based Risk
@@ -51,7 +52,8 @@ def main():
           usr_choice = input("   Insert choice: ")
           match usr_choice:
                case "1":
-                    separador()
+                    clear()
+                    separador_up()
                     print("""   ABOUT ORBITGUARD
                           
    OrbitGuard is a cli application that aims to 
@@ -60,7 +62,7 @@ def main():
    to find resources, safe zones and to alert of 
    any danger in the horizon.
                           """)
-                    separador()
+                    separador_down()
                     pause()
 
 
@@ -69,10 +71,12 @@ def main():
                          if usr_lat is None or usr_lon is None:                                   #Ukraine
                               usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))  #50.4501
                               usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | ")) #30.5234
+                              print()
                               usr_country = get_country(usr_lat, usr_lon)
 
-                              print("\n" + separador_down())
+                         separador_down()
                          
+                         clear()
                          events = get_conflicts_events(token, usr_country, limit=20)
                          events = sorted(events, key=lambda e: haversine(usr_lat, usr_lon, float(e["latitude"]), float(e["longitude"])))
                          events = events[:3]
@@ -90,12 +94,12 @@ def main():
                                    separador_up()
 
                               print(f"""
-   {i["location"]}
-   Type:                    {i["event_type"]}
-   Date:                    {i["event_date"]}
-   Distance:                {d:.1f}km
-   Fatalities:              {i["fatalities"]}
-   Distance-based risk:     {risk_label(risk)}
+  {i["location"]}
+  Type:                    {i["event_type"]}
+  Date:                    {i["event_date"]}
+  Distance:                {d:.1f}km
+  Fatalities:              {i["fatalities"]}
+  Distance-based risk:     {risk_label(risk)}
 
 """
 )                             #Separa sempre no ultimo evento.
@@ -104,8 +108,10 @@ def main():
                               
                               count += 1
 
-                    except ValueError:
-                         println("   Invalid input - please enter a valid coordinate. E.g. -23.5505")
+                         pause()
+
+                    except Exception as e:
+                         println(f"   Error: {e}")
                          pause()
 
                     
@@ -147,26 +153,24 @@ def main():
                               usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))
                               usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | "))
                          while True:
-                              print("""
-   Refugee Resource Locator:
-          [1] All nearby
-          [2] Hospitals
-          [3] Shelters
-          [4] Transport
+                              clear()
+                              separador_up()
+                              print("""     Refugee Resource Locator:
+          [1] Hospitals
+          [2] Shelters
+          [3] Transport
           [0] Exit
 """)
                               
-                              
+                              separador_down()      
                               usr_choice_case5 = input("   Insert choice: ")
 
                               match usr_choice_case5:
                                    case "1":
                                         amenity_type = "hospital"
                                    case "2":
-                                        amenity_type = "hospital"
-                                   case "3":
                                         amenity_type = "shelter"
-                                   case "4":
+                                   case "3":
                                         amenity_type = "transportation"
                                    case "0":
                                         break
@@ -183,20 +187,25 @@ def main():
                                    for count, e in enumerate(amenities):
                                         d = haversine(usr_lat, usr_lon, float(e["lat"]), float(e["lon"]))
 
+                                        address = e["tags"].get("addr:street", "")
+                                        housenumber = e["tags"].get("addr:housenumber", "")
+                                        location = f"{address} {housenumber}".strip() or f"({e['lat']}, {e['lon']})"
+
                                         if count == 0:
                                              separador_up()
 
                                         print(f"""
    {e["tags"].get("name", "Unknown facility")}
-   Location:   {e["tags"].get("addr:street", "N/A")} {e["tags"].get("addr:housenumber", "")}
+   Address:   {location}
    Distance:   {d:.1f}km
    Phone:      {e["tags"].get("phone", "N/A")}
 """
 )
-                                        if count == len(amenities) - 1:''
-                                        separador_down()
+                                        if count == len(amenities) - 1:
+                                             separador_down()
 
                                    pause()
+                                   
 
                                                                  
                     except ValueError:

@@ -42,15 +42,21 @@ def get_conflicts_events(token, country, limit=20, date_from="2025-01-01", date_
     return response.json()["data"]
 
 def get_nearby_resources(lat, lon, amenity_type, radius=10000):
+    if amenity_type == "Shelter":
+        extra = f'node["social_facility"="shelter"](around:{radius},{lat},{lon});'
+    else:
+        extra = ""
+    
     query = f"""
 [out:json];
 (
 node["amenity"="{amenity_type}"](around:{radius},{lat},{lon});
+{extra}
 );
 out;
 """
     return requests.get(
-    "https://overpass-api.de/api/interpreter",
-    params={"data": query},
-    headers={"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
-).json()["elements"]
+        "https://overpass-api.de/api/interpreter",
+        params={"data": query},
+        headers={"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
+    ).json()["elements"]
