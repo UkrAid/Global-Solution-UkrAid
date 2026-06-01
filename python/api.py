@@ -27,14 +27,14 @@ def get_token(username, password):
     return response.json()["access_token"]
 
 
-def get_conflicts_events(token, country, limit=5):
+def get_conflicts_events(token, country, limit=20, date_from="2025-01-01", date_to="2026-05-29"):
     response = requests.get(
         "https://acleddata.com/api/acled/read?_format=json",
         params={
             "country": country,
             "limit": limit,
             "fields": "event_date|event_type|latitude|longitude|location|fatalities",
-            "event_date": "2025-01-01|2026-05-28",
+            "event_date": f"{date_from}|{date_to}",
             "event_date_where": "BETWEEN"
         },
         headers={"Authorization": f"Bearer {token}"}

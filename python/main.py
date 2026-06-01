@@ -7,11 +7,12 @@ Global Solution 2026 - Semestre 1
 
 #Imports:
 from pyfiglet import figlet_format
-from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine
 from api import get_token, get_conflicts_events, get_country
-from support_functions import println, pause, separador, separador_up, separador_down
 from dotenv import load_dotenv
 import os
+
+from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine, risk_label
+from support_functions import println, pause, separador, separador_up, separador_down
 
 #ACLED API Requests:
 load_dotenv()
@@ -47,7 +48,7 @@ def main():
 
           separador()
 
-          usr_choice = input("Insert choice: ")
+          usr_choice = input("   Insert choice: ")
           match usr_choice:
                case "1":
                     separador()
@@ -65,17 +66,24 @@ def main():
 
                case "2":
                     try:
-                         if usr_lat is None or usr_lon is None:                                #Ukraine
+                         if usr_lat is None or usr_lon is None:                                   #Ukraine
                               usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))  #50.4501
                               usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | ")) #30.5234
                               usr_country = get_country(usr_lat, usr_lon)
                               separador_down()
                          
-                         events = get_conflicts_events(token, usr_country, limit=3)
+                         events = get_conflicts_events(token, usr_country, limit=20)
+                         events = sorted(events, key=lambda e: haversine(usr_lat, usr_lon, float(e["latitude"]), float(e["longitude"])))
+                         events = events[:3]
+
                          count = 0
                          for i in events:
+                              event_type = i["event_type"]
                               d = haversine(usr_lat, usr_lon, float(i["latitude"]), float(i["longitude"]))
-                              risk = troop_risk(d)
+                              if event_type == "Battles":
+                                   risk = troop_risk(d)
+                              elif event_type == "Explosions/Remote violence":
+                                   risk = missile_strike(d)
                               
                               if count == 0:
                                    separador_up()
@@ -84,9 +92,9 @@ def main():
    {i["location"]}
    Type:                    {i["event_type"]}
    Date:                    {i["event_date"]}
-   Distance:                {d}km
+   Distance:                {d:.1f}km
    Fatalities:              {i["fatalities"]}
-   Distance-based risk:     {risk:.6f}
+   Distance-based risk:     {risk_label(risk)}
 
 """
 )                             #Separa sempre no ultimo evento.

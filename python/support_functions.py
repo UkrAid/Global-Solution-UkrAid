@@ -12,7 +12,7 @@ def separador_up():
     print("╔" + "═" * 53  + "╗" + "\n")
 
 def separador_down():
-    print("╚" + "═" * 53 + "╝" "\n")
+    print("╚" + "═" * 53 + "╝" + "\n")
 
 def pause():
     input("Press enter to return...\n")
