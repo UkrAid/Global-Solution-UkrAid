@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 import requests
 import json
-
+import asyncio
+import aiohttp
+from ukrainealarm.client import Client
 
 def get_country(lat, lon):
     headers = {"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
@@ -41,6 +43,7 @@ def get_conflicts_events(token, country, limit=20, date_from="2025-01-01", date_
     ) 
     return response.json()["data"]
 
+
 def get_facility_name(tags, amenity_type):
     if amenity_type == "shelter":
         return tags.get("shelter_type", "Emergency Shelter")
@@ -49,6 +52,7 @@ def get_facility_name(tags, amenity_type):
     else:
         return tags.get("name:en") or tags.get("name", "Unknown facility")
     
+
 def get_nearby_resources(lat, lon, amenity_type, radius=100000):
     query = f"""
 [out:json];
@@ -62,3 +66,11 @@ out;
         params={"data": query},
         headers={"User-Agent": "OrbitGuard/1.0 (Academic Project)"}
     ).json()["elements"]
+
+
+def get_air_alerts(api_key):
+    async def fetch():
+        async with aiohttp.ClientSession() as session:
+            client = Client(session, api_key)
+            return await client.get_alerts()
+    return asyncio.run(fetch())

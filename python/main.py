@@ -10,7 +10,7 @@ from pyfiglet import figlet_format
 from dotenv import load_dotenv
 import os
 
-from api import get_token, get_conflicts_events, get_country, get_nearby_resources, get_facility_name
+from api import get_token, get_conflicts_events, get_country, get_nearby_resources, get_facility_name, get_air_alerts
 from risk_model import troop_risk, air_raid_risk, missile_strike, total_risk, haversine, risk_label
 from support_functions import println, pause, separador, separador_up, separador_down, clear
 
@@ -18,6 +18,7 @@ from support_functions import println, pause, separador, separador_up, separador
 load_dotenv()
 EMAIL = os.getenv("ACLED_EMAIL")
 PASSWORD = os.getenv("ACLED_PASSWORD")
+ALARM_KEY = os.getenv("UKRAINE_ALARM_KEY")
 
 
 
@@ -36,14 +37,13 @@ def main():
      while True:
           clear()
           separador_up()
-          print(figlet_format("OrbitGuard"))
+          print(figlet_format("""          UkrAid"""))
           separador_down()
           print("""
           [1] About this system
           [2] Distance-Based Risk
-          [3] Air raid alert monitor
-          [4] Safe route calculator
-          [5] Refugee resource locator
+          [3] Refugee resource locator
+          [4] Air raid alert monitor
           [0] Exit
           """)
 
@@ -54,7 +54,7 @@ def main():
                case "1":
                     clear()
                     separador_up()
-                    print("""   ABOUT ORBITGUARD
+                    print("""   ABOUT UkrAid
                           
    OrbitGuard is a cli application that aims to 
    centralize all OSINT available data inside the 
@@ -115,40 +115,8 @@ def main():
                          println(f"   Error: {e}")
                          pause()
 
-                    
-
 
                case "3":
-                    
-                    try:
-                         
-                         print("case 3")
-
-                    except:
-                         println("   Could not reach alert service. Check your connection.")
-                         pause()
-
-
-
-               case "4":
-                    dst_lat = None
-                    dst_lon = None
-
-                    try:
-                         if usr_lat is None or usr_lon is None: 
-                              usr_lat = float(input("   Insert your latitue: E.g. -23.5505 | "))
-                              usr_lon = float(input("   Insert your longitude: E.g. 74.0060 | "))
-                         
-                         dst_lat = float(input("   Insert destination latitue: E.g.  50.4501 | "))
-                         dst_lon = float(input("   Insert destination's longitude: E.g.  30.5234 | "))
-                         
-                    
-                    except ValueError:
-                         println("Invalid input - please enter a valid coordinate. E.g. -23.5505")
-                         pause()
-
-
-               case "5":
                     try:
                          if usr_lat is None or usr_lon is None:
                               usr_lat = float(input("   Insert your latitude: E.g. 50.4501 | "))
@@ -202,6 +170,29 @@ def main():
                     except Exception as err:
                          println(f"   Error: {err}")
                          pause()
+               
+               
+               case "4":
+                    
+                    try:
+                         clear()
+                         alerts = get_air_alerts(ALARM_KEY)
+                         separador_up()
+                         println("   ⚠ ACTIVE ALERTS ACROSS UKRAINE")
+                         for i in alerts:
+                              alert_types = ", ".join([a["type"] for a in i["activeAlerts"]])
+
+                              print(f"""
+ Region:       {i["regionEngName"]}
+ Alert Type:   {alert_types}
+""")
+                         separador_down()
+                         pause()
+
+                    except Exception as e:
+                         println(f"   Error: {e}")
+                         pause()
+
 
           
                case "0":
