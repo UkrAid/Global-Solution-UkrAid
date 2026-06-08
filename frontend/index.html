@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,8 +23,15 @@
         <li><a href="#about">Sobre</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#how-it-works">Como Funciona</a></li>
+        <li><a href="#galeria">Galeria</a></li>
+        <li><a href="#quiz">Quiz</a></li>
       </ul>
       <div class="cta">
+        <div class="theme-switcher" aria-label="Selecionar tema">
+          <button class="theme-btn active" data-theme-val="padrao" title="Tema Padrão" aria-label="Tema Padrão"></button>
+          <button class="theme-btn" data-theme-val="naval" title="Tema Naval" aria-label="Tema Naval"></button>
+          <button class="theme-btn" data-theme-val="alto-contraste" title="Alto Contraste" aria-label="Alto Contraste"></button>
+        </div>
         <a href="#contact-us" class="nav-cta">Contato</a>
       </div>
     </nav>
@@ -194,6 +201,82 @@
         </div>
       </div>
     </section>
+    <section id="galeria">
+      <div class="container">
+        <header class="galeria-header">
+          <span class="section-label">Galeria</span>
+          <h2 class="section-title">Conflito em Dados</h2>
+          <p class="section-sub">Imagens de satélite e visualizações dos dados que alimentam a plataforma UkrAid.</p>
+        </header>
+
+        <div class="slideshow">
+          <div class="slideshow-track">
+            <div class="slide">
+              <img src="./Images/Kyiv.jpeg" alt="Vista de satélite de Kyiv, Ucrânia" />
+              <p class="slide-caption">Vista de satélite de Kyiv, Ucrânia</p>
+            </div>
+            <div class="slide">
+              <img src="./Images/Ukraine-War.jpg" alt="Zona de conflito ativo na Ucrânia" />
+              <p class="slide-caption">Zona de conflito ativo — dados ACLED em campo</p>
+            </div>
+            <div class="slide">
+              <img src="./Images/ACLED - Img.png" alt="Visualização de eventos de conflito via API ACLED" />
+              <p class="slide-caption">Visualização de eventos de conflito via API ACLED</p>
+            </div>
+          </div>
+          <button class="slideshow-btn prev" aria-label="Slide anterior">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button class="slideshow-btn next" aria-label="Próximo slide">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="slideshow-dots">
+          <button class="dot active" aria-label="Slide 1"></button>
+          <button class="dot" aria-label="Slide 2"></button>
+          <button class="dot" aria-label="Slide 3"></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="quiz">
+      <div class="container">
+        <header class="quiz-header">
+          <span class="section-label">Quiz</span>
+          <h2 class="section-title">Teste seu Conhecimento</h2>
+          <p class="section-sub">Descubra o quanto você sabe sobre segurança civil e a plataforma UkrAid.</p>
+        </header>
+
+        <div class="quiz-wrapper">
+          <div class="quiz-card">
+            <div class="quiz-progress">
+              <span class="quiz-counter">Pergunta 1 de 5</span>
+              <div class="quiz-bar-track">
+                <div class="quiz-bar-fill" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="quiz-body">
+              <p class="quiz-question"></p>
+              <div class="quiz-options"></div>
+              <p class="quiz-feedback"></p>
+              <div class="quiz-nav">
+                <button id="quizNavBtn" class="btn-primary" disabled>Próxima →</button>
+              </div>
+            </div>
+
+            <div class="quiz-result" style="display: none">
+              <p class="quiz-score">0/5</p>
+              <h3 class="quiz-result-title">Resultado Final</h3>
+              <p class="quiz-result-msg"></p>
+              <button id="quizReiniciar" class="btn-primary">Reiniciar Quiz</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="contact-us">
       <div class="container">
         <header class="contact-header">
